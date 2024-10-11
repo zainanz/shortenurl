@@ -6,7 +6,7 @@ const TINYURL = `https://api.tinyurl.com/create?api_token=${process.env.TINYURL_
 
 
 
-const getShortURL = async (user_url) => {
+const getShortURL = async (user_url, alias) => {
 
   try {
     const response = await fetch(TINYURL, {
@@ -18,9 +18,9 @@ const getShortURL = async (user_url) => {
         'Authorization' : `Bearer ${process.env.TINYURL_API}`
       },
       body:JSON.stringify({
-        "url": "",
+        "url": user_url,
         "domain": "tinyurl.com",
-        "alias": "zainanurl",
+        "alias": alias,
         "description": "string"
       })
       }
@@ -39,14 +39,16 @@ const getShortURL = async (user_url) => {
 }
 
 export const tinyUrl = async (req, res, next) => {
-  if (!req.body.link){
-    const error = new Error("You cannot leave the URL empty.")
-    error.status = 400;
+  if (!req.body.link || !req.body.alias){
+    const error = new Error("Missing link or alias.")
+    error.status = 422;
     return next(error)
   }
-  const response = await getShortURL(req.body.link)
+  const response = await getShortURL(req.body.link, req.body.alias)
 
   if(response instanceof Error){
     return next(response);
   }
+  console.log(response)
+  res.status(201).json(response.data.tiny_url);
 }
