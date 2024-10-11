@@ -50,5 +50,5 @@ export const tinyUrl = async (req, res, next) => {
     return next(response);
   }
   console.log(response)
-  res.status(201).json(response.data.tiny_url);
+  res.status(201).json({msg: response.data.tiny_url});
 }
